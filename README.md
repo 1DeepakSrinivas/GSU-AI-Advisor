@@ -1,212 +1,197 @@
-# AI Advisor Web Scraper
+# GSU-AI-Advisor
 
-This application scrapes web pages, chunks the content, generates embeddings using OpenAI, and stores them in Pinecone for semantic search.
+An AI-powered academic advisor for Georgia State University students, providing information about courses, programs, and requirements based on the 2020-21 Academic catalog.
+
+## Features
+
+- **Interactive Chat Interface**: Ask questions about GSU courses, requirements, and programs
+- **Document-Based Responses**: Answers are grounded in official GSU catalog information
+- **Source Citation**: View the source documents used to generate each response
+- **Real-time Processing**: Instant answers using Pinecone vector database
+- **Customizable System Prompts**: Adjust the AI's response style and focus
+
+## Architecture
+
+- **Frontend**: Streamlit web application
+- **Backend**: LangChain for RAG (Retrieval-Augmented Generation)
+- **Vector Database**: Pinecone for semantic search
+- **Embeddings**: OpenAI text-embedding-3-large model
+- **LLM**: OpenAI GPT-3.5-turbo
+- **Document Processing**: PDF text extraction with pdfplumber
 
 ## Setup Instructions
 
-### 1. Install Pinecone Package
+### 1. Environment Setup
 
-First, you need to install the correct Pinecone package. Since we couldn't install it during the initial setup due to compilation issues, try:
+Create a `.env` file in the root directory with your API keys:
+
+```env
+OPENAI_API_KEY=sk-your-openai-api-key-here
+PINECONE_API_KEY=your-pinecone-api-key-here
+PINECONE_ENVIRONMENT=us-east-1-aws
+PINECONE_INDEX_NAME=gsu-ai
+```
+
+### 2. Install Dependencies
 
 ```bash
-# Activate your virtual environment first
-.\venv\bin\Activate.ps1
-
-# Install pinecone (the correct package name)
-pip install pinecone-client
+pip install -r requirements.txt
 ```
 
-### 2. Set Up API Keys
+Required packages include:
 
-1. **Copy the environment template:**
+- streamlit
+- langchain
+- langchain-openai
+- langchain-pinecone
+- langchain-community
+- pinecone-client
+- pdfplumber
+- python-dotenv
 
-   ```bash
-   copy app\env_template.txt .env
-   ```
+### 3. Initialize Knowledge Base
 
-2. **Get your API keys:**
-
-   **OpenAI API Key:**
-
-   - Go to [OpenAI Platform](https://platform.openai.com/api-keys)
-   - Create an account if you don't have one
-   - Generate a new API key
-   - Copy it to your `.env` file
-
-   **Pinecone API Key:**
-
-   - Go to [Pinecone Console](https://app.pinecone.io/)
-   - Create a free account
-   - Create a new project
-   - Copy your API key and environment from the dashboard
-   - Add them to your `.env` file
-
-3. **Update your `.env` file:**
-   ```env
-   OPENAI_API_KEY=sk-your-actual-openai-key-here
-   PINECONE_API_KEY=your-actual-pinecone-key-here
-   PINECONE_ENVIRONMENT=your-pinecone-environment
-   PINECONE_INDEX_NAME=ai-advisor-index
-   ```
-
-### 3. Add Your URLs
-
-Edit `app/scraper.py` and add your URLs to the `urls` list in the `main()` function:
-
-```python
-def main():
-    urls = [
-        "https://example.com/page1",
-        "https://example.com/page2",
-        "https://your-website.com/important-page",
-        # Add more URLs here
-    ]
-```
-
-### 4. Run the Scraper
+The system will automatically check and use existing Pinecone vectors. If you need to set up from scratch:
 
 ```bash
-cd app
-python scraper.py
+python initialize_knowledge_base.py
 ```
 
-This will:
-
-- Scrape all the URLs you specified
-- Split content into chunks using RecursiveCharacterTextSplitter
-- Generate OpenAI embeddings for each chunk
-- Save everything to `scraped_data.json`
-
-### 5. Initialize Pinecone Database
+### 4. Run the Application
 
 ```bash
-python pinecone_setup.py
+streamlit run app/streamlit_app.py
 ```
 
-This will:
+The application will be available at `http://localhost:8501`
 
-- Create a Pinecone index (if it doesn't exist)
-- Upload all your vectorized data to Pinecone
-- Display statistics about your index
+## Usage
+
+1. **Start the Application**: Run the Streamlit command above
+2. **Wait for Initialization**: The system checks Pinecone for existing knowledge base
+3. **Ask Questions**: Enter questions about GSU in the text input
+4. **Review Responses**: Get detailed answers with course codes and requirements
+5. **Check Sources**: Expand "Source Documents" to verify information
+
+### Example Questions
+
+- "What economics courses are available for first-year students?"
+- "What are the prerequisites for MATH 2211?"
+- "Tell me about the Computer Science degree requirements"
+- "What courses satisfy the core curriculum for Area F?"
 
 ## File Structure
 
 ```
-app/
-├── scraper.py          # Main scraping and embedding script
-├── pinecone_setup.py   # Pinecone database initialization
-├── env_template.txt    # Environment variables template
-├── README.md           # This file
-└── scraped_data.json   # Generated data (after running scraper)
+GSU-AI-Advisor/
+├── app/
+│   ├── streamlit_app.py      # Main Streamlit application
+│   ├── pinecone_setup.py     # Pinecone database management
+│   ├── retriever.py          # Document retrieval setup
+│   ├── pdf_processor.py      # PDF processing and embedding
+│   └── batch_processor.py    # Batch document processing
+├── initialize_knowledge_base.py  # Setup script
+├── requirements.txt          # Python dependencies
+├── .env                      # Environment variables (create this)
+└── README.md                # This file
 ```
 
-## Usage Examples
+## System Components
 
-### Basic Scraping
+### Core Components
 
-```python
-from scraper import WebScraper
+- **PineconeManager**: Handles vector database operations
+- **PDFProcessor**: Downloads and processes PDF documents
+- **BatchProcessor**: Manages document catalog and processing
+- **RetrieverSetup**: Configures semantic search retrieval
+- **Streamlit App**: User interface and interaction handling
 
-# Initialize scraper
-scraper = WebScraper(chunk_size=1000, chunk_overlap=200)
+### Data Flow
 
-# Process URLs
-urls = ["https://example.com"]
-chunks = scraper.process_urls(urls)
+1. **Document Processing**: PDFs are downloaded, text extracted, and chunked
+2. **Embedding Generation**: Text chunks are converted to vectors using OpenAI
+3. **Vector Storage**: Embeddings are stored in Pinecone with metadata
+4. **Query Processing**: User questions are embedded and matched against stored vectors
+5. **Response Generation**: Retrieved context is used by GPT-3.5 to generate answers
 
-# Save data
-scraper.save_to_json("my_data.json")
+## Configuration
+
+### System Prompt Customization
+
+The default system prompt can be modified in the Streamlit interface:
+
+```
+You are an AI Academic Advisor assistant. Use the provided context to answer questions accurately and helpfully. If the answer cannot be found in the context, say so clearly. Provide detailed, well-structured responses based on the available information. All answers must be relevant to Georgia State University. Provide course codes, their prerequisites and co-requisites, and all other necessary information along with the answer for the user to be aware of.
 ```
 
-### Pinecone Operations
+### Vector Database Settings
 
-```python
-from pinecone_setup import PineconeManager
-
-# Initialize manager
-manager = PineconeManager()
-
-# Create index
-manager.create_index()
-
-# Upload vectors
-vectors = load_scraped_data("scraped_data.json")
-manager.upload_vectors(vectors)
-
-# Query similar content
-query_vector = [0.1, 0.2, ...]  # Your query embedding
-results = manager.query_index(query_vector, top_k=5)
-```
-
-## Features
-
-- **Smart Content Extraction:** Automatically finds main content areas
-- **Flexible Chunking:** Configurable chunk size and overlap
-- **Rate Limiting:** Built-in delays to respect API limits
-- **Error Handling:** Robust error handling for failed requests
-- **Batch Processing:** Efficient batch uploads to Pinecone
-- **Metadata Storage:** Rich metadata for each chunk
-
-## Configuration Options
-
-### Scraper Settings
-
-- `chunk_size`: Maximum characters per chunk (default: 1000)
-- `chunk_overlap`: Overlap between chunks (default: 200)
-
-### Pinecone Settings
-
-- `dimension`: Vector dimension (default: 1536 for OpenAI ada-002)
-- `metric`: Distance metric (default: "cosine")
-- `batch_size`: Upload batch size (default: 100)
+- **Embedding Model**: text-embedding-3-large (3072 dimensions)
+- **Chunk Size**: 1000 characters with 200 character overlap
+- **Index Name**: gsu-ai (configurable via environment)
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **"No module named 'pinecone'"**
+1. **Connection Errors**
 
-   ```bash
-   pip install pinecone-client
-   ```
+   - Verify API keys in `.env` file
+   - Check Pinecone index exists and is accessible
+   - Ensure OpenAI API key has sufficient credits
 
-2. **"OpenAI API key not found"**
+2. **No Knowledge Base Content**
 
-   - Check your `.env` file
-   - Make sure the file is in the correct location
-   - Verify the key format starts with "sk-"
+   - Run `initialize_knowledge_base.py` to set up initial documents
+   - Check Pinecone index has vectors loaded
 
-3. **"SSL Certificate errors"**
+3. **Slow Responses**
+   - Pinecone queries may have latency
+   - Check OpenAI API rate limits
 
-   - Try updating pip: `python -m pip install --upgrade pip`
-   - Or add `--trusted-host pypi.org --trusted-host pypi.python.org --trusted-host files.pythonhosted.org` to pip commands
+### Debug Information
 
-4. **Rate limit errors**
-   - The scraper includes delays, but you might need to increase them
-   - Check your OpenAI usage quotas
+The Streamlit app includes debug information expandable sections showing:
 
-### Performance Tips
+- Retriever setup details
+- Query processing logs
+- Error messages and stack traces
 
-- Start with a small set of URLs to test
-- Use smaller chunk sizes for better precision
-- Monitor your OpenAI API usage and costs
-- Consider using Pinecone's free tier limits
+## Development
 
-## Next Steps
+### Adding New Documents
 
-After setting up the scraper and database:
+Use the PDF processor to add new documents:
 
-1. **Build a Query Interface:** Create a script to search your knowledge base
-2. **Add More Content Types:** Extend to handle PDFs, documents, etc.
-3. **Implement Caching:** Cache embeddings to avoid regenerating
-4. **Add Update Functionality:** Handle content updates and deduplication
-5. **Create a Web Interface:** Build a Streamlit app for easy searching
+```python
+from app.pdf_processor import PDFProcessor
 
-## Support
+processor = PDFProcessor()
+success, chunk_count = processor.process_pdf_url(
+    url="https://example.com/document.pdf",
+    title="Document Title"
+)
+```
 
-If you encounter issues:
+### Customizing Retrieval
 
-1. Check the error messages carefully
-2. Verify all API keys are correct
-3. Make sure your virtual environment is activated
-4. Check API quotas and rate limits
+Modify retrieval parameters in `app/retriever.py`:
+
+```python
+retriever = vector_store.as_retriever(
+    search_kwargs={"k": 5}  # Number of documents to retrieve
+)
+```
+
+## Data Sources
+
+The system is trained on:
+
+- GSU 2020-21 Undergraduate Catalog
+- Additional institutional documents (as configured)
+
+All information is accurate as of the 2020-21 academic year. Users should verify current requirements with official GSU sources.
+
+## License
+
+This project is intended for educational purposes. GSU catalog content remains the property of Georgia State University.
