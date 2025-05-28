@@ -1,0 +1,7 @@
+streamlit
+langchain
+openai
+beautifulsoup4
+requests
+python-dotenv
+pinecone 

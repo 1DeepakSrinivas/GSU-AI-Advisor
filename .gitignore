@@ -1,0 +1,13 @@
+#Virtual Environment
+/venv/
+
+#Environment Variables
+.env
+.env.local
+
+#Python Cache
+__pycache__/
+
+#Embedding Files and Cache
+*.json
+*.pdf
