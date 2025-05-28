@@ -181,7 +181,7 @@ class PineconeManager:
         """Create a RAG chain using a retriever and an LLM with optional system prompt"""
         try:
             # Initialize the LLM
-            llm = ChatOpenAI()
+            llm = ChatOpenAI(model="gpt-4o-mini")
 
             # Set default system prompt if none provided
             if system_prompt is None:
