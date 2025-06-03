@@ -1,8 +1,3 @@
-"""
-Batch PDF Processor for AI Advisor
-Processes multiple PDFs and maintains a persistent knowledge base
-"""
-
 import os
 import json
 from datetime import datetime
@@ -21,7 +16,6 @@ class BatchProcessor:
         # Using Pinecone only
         
     def load_catalog(self) -> Dict[str, Any]:
-        """Load the document catalog from file"""
         try:
             if os.path.exists(self.catalog_file):
                 with open(self.catalog_file, 'r', encoding='utf-8') as f:
@@ -33,7 +27,6 @@ class BatchProcessor:
             return {"documents": [], "last_updated": None, "total_processed": 0}
     
     def save_catalog(self):
-        """Save the document catalog to file"""
         try:
             self.document_catalog["last_updated"] = datetime.now().isoformat()
             with open(self.catalog_file, 'w', encoding='utf-8') as f:
@@ -43,14 +36,12 @@ class BatchProcessor:
             print(f"Error saving catalog: {e}")
     
     def is_document_processed(self, url: str) -> bool:
-        """Check if a document has already been processed"""
         for doc in self.document_catalog["documents"]:
             if doc["url"] == url:
                 return True
         return False
     
     def add_to_catalog(self, url: str, title: str, chunks_count: int, success: bool):
-        """Add a processed document to the catalog"""
         doc_entry = {
             "url": url,
             "title": title,
@@ -66,7 +57,6 @@ class BatchProcessor:
         self.save_catalog()
     
     def get_catalog_summary(self) -> Dict[str, Any]:
-        """Get a summary of the document catalog"""
         total_docs = len(self.document_catalog["documents"])
         successful_docs = sum(1 for doc in self.document_catalog["documents"] if doc["success"])
         total_chunks = sum(doc["chunks_count"] for doc in self.document_catalog["documents"] if doc["success"])
@@ -80,7 +70,6 @@ class BatchProcessor:
         }
     
     def process_document_list(self, documents: List[Dict[str, str]], force_reprocess: bool = False) -> Dict[str, Any]:
-        """Process a list of documents"""
         results = {
             "processed": 0,
             "skipped": 0,
@@ -157,8 +146,6 @@ class BatchProcessor:
         return results
     
     def ensure_knowledge_base_ready(self) -> bool:
-        """Ensure the knowledge base has content by checking Pinecone directly"""
-        
         print("Checking Pinecone knowledge base...")
         
         # Connect to Pinecone index
@@ -177,11 +164,9 @@ class BatchProcessor:
             return False
     
     def get_processed_documents(self) -> List[Dict[str, Any]]:
-        """Get list of all processed documents"""
         return [doc for doc in self.document_catalog["documents"] if doc["success"]]
     
     def remove_document_from_catalog(self, url: str):
-        """Remove a document from the catalog (doesn't remove from Pinecone)"""
         self.document_catalog["documents"] = [
             doc for doc in self.document_catalog["documents"] 
             if doc["url"] != url
@@ -190,7 +175,6 @@ class BatchProcessor:
         print(f"Removed document from catalog: {url}")
 
 def create_default_knowledge_base():
-    """Check if knowledge base is available in Pinecone"""
     processor = BatchProcessor()
     
     print("Checking knowledge base availability...")
@@ -204,7 +188,6 @@ def create_default_knowledge_base():
     return success
 
 def main():
-    """Main function for batch processing"""
     processor = BatchProcessor()
     
     # Example: Process multiple documents

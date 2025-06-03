@@ -1,8 +1,3 @@
-#!/usr/bin/env python3
-"""
-Initialize Knowledge Base Script
-Ensures essential documents are processed and available in the knowledge base
-"""
 
 from app.batch_processor import create_default_knowledge_base
 

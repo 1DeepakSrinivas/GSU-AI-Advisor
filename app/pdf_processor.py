@@ -1,8 +1,3 @@
-"""
-PDF Processor for AI Advisor
-Downloads PDFs, extracts text, creates embeddings, and pushes directly to Pinecone
-"""
-
 import os
 import requests
 import pdfplumber
@@ -14,7 +9,6 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from app.pinecone_setup import PineconeManager
 
-# Load environment variables
 load_dotenv()
 
 class PDFProcessor:
@@ -28,7 +22,6 @@ class PDFProcessor:
         self.pinecone_manager = PineconeManager()
         
     def download_pdf(self, url: str, temp_filename: str = "temp_document.pdf") -> str:
-        """Download PDF from URL to temporary file"""
         try:
             print(f"Downloading PDF from: {url}")
             response = requests.get(url, stream=True)
@@ -46,7 +39,6 @@ class PDFProcessor:
             return None
     
     def extract_text_from_pdf(self, pdf_path: str) -> List[str]:
-        """Extract text from PDF file"""
         try:
             print(f"Extracting text from: {pdf_path}")
             text_content = []
@@ -70,7 +62,6 @@ class PDFProcessor:
             return []
     
     def chunk_text(self, texts: List[str]) -> List[str]:
-        """Split texts into smaller chunks for embedding"""
         try:
             print("Chunking text for optimal embedding...")
             all_chunks = []
@@ -87,7 +78,6 @@ class PDFProcessor:
             return []
     
     def create_embeddings(self, chunks: List[str]) -> List[Dict[str, Any]]:
-        """Create embeddings for text chunks"""
         try:
             print("Creating embeddings...")
             embedded_chunks = []
@@ -126,7 +116,6 @@ class PDFProcessor:
             return []
     
     def push_to_pinecone(self, embedded_chunks: List[Dict[str, Any]], url: str, title: str = None) -> bool:
-        """Push embeddings directly to Pinecone"""
         try:
             print("Connecting to Pinecone...")
             
@@ -167,7 +156,6 @@ class PDFProcessor:
             return False
     
     def process_pdf_url(self, url: str, title: str = None) -> tuple[bool, int]:
-        """Complete pipeline: download PDF, extract text, create embeddings, push to Pinecone"""
         try:
             print(f"\n{'='*60}")
             print(f"Processing PDF: {title or 'PDF Document'}")
@@ -223,10 +211,8 @@ class PDFProcessor:
             return False, 0
 
 def main():
-    """Example usage"""
     processor = PDFProcessor()
     
-    # Example: Process the GSU catalog
     gsu_catalog_url = "https://catalogs.gsu.edu/mime/media/6/8384/2020-2021_Undergraduate_Catalog_Bachelor-Level.pdf"
     
     success, chunks_count = processor.process_pdf_url(
