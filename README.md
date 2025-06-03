@@ -65,21 +65,6 @@ streamlit run app/streamlit_app.py
 
 The application will be available at `http://localhost:8501`
 
-## Usage
-
-1. **Start the Application**: Run the Streamlit command above
-2. **Wait for Initialization**: The system checks Pinecone for existing knowledge base
-3. **Ask Questions**: Enter questions about GSU in the text input
-4. **Review Responses**: Get detailed answers with course codes and requirements
-5. **Check Sources**: Expand "Source Documents" to verify information
-
-### Example Questions
-
-- "What economics courses are available for first-year students?"
-- "What are the prerequisites for MATH 2211?"
-- "Tell me about the Computer Science degree requirements"
-- "What courses satisfy the core curriculum for Area F?"
-
 ## File Structure
 
 ```
@@ -97,14 +82,6 @@ GSU-AI-Advisor/
 ```
 
 ## System Components
-
-### Core Components
-
-- **PineconeManager**: Handles vector database operations
-- **PDFProcessor**: Downloads and processes PDF documents
-- **BatchProcessor**: Manages document catalog and processing
-- **RetrieverSetup**: Configures semantic search retrieval
-- **Streamlit App**: User interface and interaction handling
 
 ### Data Flow
 
@@ -148,14 +125,6 @@ You are an AI Academic Advisor assistant. Use the provided context to answer que
 3. **Slow Responses**
    - Pinecone queries may have latency
    - Check OpenAI API rate limits
-
-### Debug Information
-
-The Streamlit app includes debug information expandable sections showing:
-
-- Retriever setup details
-- Query processing logs
-- Error messages and stack traces
 
 ## Development
 
